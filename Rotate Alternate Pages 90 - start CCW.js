@@ -3,7 +3,7 @@
 // Code and Ideas have been borrowed from many sources, these are listed where possible at the end of the Code
 // 
 // Each script can be saved with a .js extension to the javascript directory
-// ie c:
+// ie "C:\Program Files (x86)\Adobe\Acrobat 8.0\Acrobat\Javascripts" on a Windows Vista/7/8 64 bit install for V8.0
 // you must restart Acrobat after copying to see the menu options change
 // All these utilities are added to the "Edit" Menu
 // to disbale them, remove from the Javascript directory and restart Acrobat
