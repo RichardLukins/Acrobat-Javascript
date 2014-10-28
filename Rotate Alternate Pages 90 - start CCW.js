@@ -38,46 +38,38 @@ RotAltPagesOddCCW = app.trustedFunction(function()
 {
 	try { // start error trapping
 		app.beginPriv(); // explicitly elevate security priveledges
-		if (this.numPages > 0)  // check there is at least 1 page to work on
-		{
-			var t = app.thermometer; // create a progress bar to inform the user of progress
-			t.duration = this.numPages+1;
-			t.begin();
-			for (i=0; i< this.numPages; i++) // loop through each page, one at a time
-			{
-			rotation = this.getPageRotation(i) // we need to know the current rotation of the page
-			if (i%2 == 0) //true for odd pages, as Acrobat counts the first page as 0
+		if (this.numPages > 0) { // check there is at least 1 page to work on
+			var rotation = 0;
+			var tmr = app.thermometer; // create a progress bar to inform the user of progress
+			tmr.duration = this.numPages+1;
+			tmr.begin();
+			for (var i=0; i< this.numPages; i++) { // loop through each page, one at a time
+			rotation = this.getPageRotation(i); // we need to know the current rotation of the page
+			if (i%2 == 0) {//true for odd pages, as Acrobat counts the first page as 0
 				// odd page action
-				{
 				// the page rotation can be only 4 values 0, 90 ,180 , 270
 				// the rotation is relative to the VERY original value, so  
 				// any change in rotation must be relative to the current rotation not absolute!!
-				//
-				if (rotation == 0)
-					{rotation = 270} // hand fix as 0 - 90 = -90 not 270 that we need !
-				else
-					{rotation = rotation - 90} // 90 CCW means -90deg
-				}
-			else
+				if (rotation == 0) { 
+					rotation = 270; // hand fix as 0 - 90 = -90 not 270 that we need !
+				} else {
+					rotation = rotation - 90} // 90 CCW means -90deg
+			} else {
 				// even page action
-				{
-				if (rotation == 270)
-					{rotation = 0} // hand fix as 270 + 90 = 360 not 0 that we need !
-				else
-					{rotation = rotation + 90} // 90 CW means +90deg
+				if (rotation == 270) {
+					rotation = 0; // hand fix as 270 + 90 = 360 not 0 that we need !
+				} else {
+					rotation = rotation + 90} // 90 CW means +90deg
 				}
-			t.value = i; // update progress bar
-			t.text = 'Rotating page ' + (i+1) + ' of ' + (this.numPages+1); // update progress message
-			this.setPageRotations(i,i,rotation) // issue the page rotation
+			tmr.value = i; // update progress bar
+			tmr.text = 'Rotating page ' + (i+1) + ' of ' + (this.numPages+1); // update progress message
+			this.setPageRotations(i,i,rotation); // issue the page rotation
 			} // end of all pages loop
-			t.end(); // end the progress bar
+			tmr.end(); // end the progress bar
 		} // end of core processing section
 		app.endPriv();
 	} // end of try section now catch any error
-	catch(e)
-	{
-	app.alert("Processing error: "+e)
-	}
+	catch(e) { app.alert("Processing error: "+e) }
 } // end of the code section
 ) // end of the "app.trustedFunction"
 //
