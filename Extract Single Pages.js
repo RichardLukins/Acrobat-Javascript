@@ -4,7 +4,8 @@
 //   ************************************************************************************
 //   ************************************************************************************
 //   *****                                                                          *****
-//   *****    	          ROTATE ALL PAGES 90 DEGREES CLOCKWISE                     *****
+//   *****    	EXTRACT EACH PAGE IN THE DOCUMENT TO A SINGLE PAGE PDF FILE         *****
+//   *****              Starts Numbering the Pages at 0001                          *****
 //   *****                                                                          *****
 //   ************************************************************************************
 //   ************************************************************************************
@@ -42,37 +43,31 @@
 // Start of the Coding:
 //
 // Add a menu item to the Edit Menu
-app.addMenuItem({  cName: "Rotate All Pages 90 CW", cParent: "Edit", cExec: "RotPages90CW();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
+app.addMenuItem({  cName: "Extract Each Page To Own PDF", cParent: "Edit", cExec: "ExtractSingles();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
 //
 // Define the Function
 //
-RotPages90CW = app.trustedFunction(function() {
+ExtractSingles = app.trustedFunction(function() {
 	try { // start error trapping
 		app.beginPriv(); // explicitly elevate security privileges
 		if (this.numPages > 0) { // check there is at least 1 page to work on
-			var rotation = 0;
 			var tmr = app.thermometer; // create a progress bar to inform the user of progress
 			tmr.duration = this.numPages;
 			tmr.begin();
-			for (var i=0; i< this.numPages; i++) { // loop through All pages, one at a time
-				rotation = this.getPageRotation(i); // we need to know the current rotation of the page
-				// the page rotation can be only 4 values 0, 90 ,180 , 270
-				// the rotation is relative to the VERY original value, so  
-				// any change in rotation must be relative to the current rotation not absolute!!
-				if (rotation == 0) { 
-					rotation = 90;
+			fn=this.path.replace(/\.pdf$/i, "") // remove the ".pdf" from the end of the file name
+			for (i=0; i<this.numPages; i++) { // Pad file name to cope with 9999 pages
+				if (i + 1 < 10 ) {
+					j = "000" + (i+1) 
+					} else if (i + 1 < 100) {
+					j = "00" + (i+1) 
+					} else if (i + 1 < 1000) {
+					j = "0" + (i+1) 
 					} else {
-					if (rotation == 90) { 
-						rotation = 180; 
-						} else {
-						if (rotation == 180) { 
-							rotation = 270; 
-							} else {
-							if (rotation == 270) { rotation = 0}
-							} } }
+					j = "" + (i+1) 
+					}
 				tmr.value = i; // update progress bar
-				tmr.text = 'Rotating page ' + (i + 1) + ' of ' + (this.numPages); // update progress message
-				this.setPageRotations(i,i,rotation); // issue the page rotation
+				tmr.text = 'Extracting page ' + (i+1) + ' of ' + (this.numPages); // update progress message
+				this.extractPages({nStart: i, nEnd: i , cPath: fn  + "_extract_" + j + ".pdf"});
 				} // end of all pages loop
 			tmr.end(); // end the progress bar
 		} // end of core processing section

@@ -4,7 +4,7 @@
 //   ************************************************************************************
 //   ************************************************************************************
 //   *****                                                                          *****
-//   *****    	          ROTATE ALL PAGES 90 DEGREES CLOCKWISE                     *****
+//   *****    	              REVERSE ALL PAGES IN DOCUMENT                         *****
 //   *****                                                                          *****
 //   ************************************************************************************
 //   ************************************************************************************
@@ -42,37 +42,21 @@
 // Start of the Coding:
 //
 // Add a menu item to the Edit Menu
-app.addMenuItem({  cName: "Rotate All Pages 90 CW", cParent: "Edit", cExec: "RotPages90CW();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
+app.addMenuItem({  cName: "Reverse Order All Pages", cParent: "Edit", cExec: "RevALLPages();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
 //
 // Define the Function
 //
-RotPages90CW = app.trustedFunction(function() {
+RevALLPages = app.trustedFunction(function() {
 	try { // start error trapping
 		app.beginPriv(); // explicitly elevate security privileges
 		if (this.numPages > 0) { // check there is at least 1 page to work on
-			var rotation = 0;
 			var tmr = app.thermometer; // create a progress bar to inform the user of progress
 			tmr.duration = this.numPages;
 			tmr.begin();
-			for (var i=0; i< this.numPages; i++) { // loop through All pages, one at a time
-				rotation = this.getPageRotation(i); // we need to know the current rotation of the page
-				// the page rotation can be only 4 values 0, 90 ,180 , 270
-				// the rotation is relative to the VERY original value, so  
-				// any change in rotation must be relative to the current rotation not absolute!!
-				if (rotation == 0) { 
-					rotation = 90;
-					} else {
-					if (rotation == 90) { 
-						rotation = 180; 
-						} else {
-						if (rotation == 180) { 
-							rotation = 270; 
-							} else {
-							if (rotation == 270) { rotation = 0}
-							} } }
-				tmr.value = i; // update progress bar
-				tmr.text = 'Rotating page ' + (i + 1) + ' of ' + (this.numPages); // update progress message
-				this.setPageRotations(i,i,rotation); // issue the page rotation
+			for (i = this.numPages - 1; i >= 0; i--) { // loop through All pages, one at a time in reverse order
+				tmr.value = (i-this.numPages)*-1; // update progress bar
+				tmr.text = 'Moving page ' + (i-this.numPages)*-1 + ' of ' + (this.numPages); // update progress message
+				this.movePage(0, i);
 				} // end of all pages loop
 			tmr.end(); // end the progress bar
 		} // end of core processing section
