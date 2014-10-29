@@ -4,8 +4,7 @@
 //   ************************************************************************************
 //   ************************************************************************************
 //   *****                                                                          *****
-//   *****    		ROTATE ALTERNATING PAGES OPPOSING 90 DEGREES                    *****
-//   *****       ODD PAGES COUNTER CLOCKWISE & EVEN PAGES CLOCKWISE                 *****
+//   *****    	        	 ROTATE ODD PAGES ONLY 180 DEGREES                      *****
 //   *****                                                                          *****
 //   ************************************************************************************
 //   ************************************************************************************
@@ -43,11 +42,11 @@
 // Start of the Coding:
 //
 // Add a menu item to the Edit Menu
-app.addMenuItem({  cName: "Rotate 90 Alt Pages Odd CCW", cParent: "Edit", cExec: "RotAltPagesOddCCW();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
+app.addMenuItem({  cName: "Rotate Odd Pages 180", cParent: "Edit", cExec: "RotOddPages180();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
 //
 // Define the Function
 //
-RotAltPagesOddCCW = app.trustedFunction(function() {
+RotOddPages180 = app.trustedFunction(function() {
 	try { // start error trapping
 		app.beginPriv(); // explicitly elevate security privileges
 		if (this.numPages > 0) { // check there is at least 1 page to work on
@@ -60,26 +59,24 @@ RotAltPagesOddCCW = app.trustedFunction(function() {
 				var tmr = app.thermometer; // create a progress bar to inform the user of progress
 				tmr.duration = this.numPages;
 				tmr.begin();
-				for (var i=0; i< this.numPages; i++) { // loop through each page, one at a time
+				for (var i=0; i< this.numPages; i=i+2) { // loop through ODD pages only, one at a time
 					rotation = this.getPageRotation(i); // we need to know the current rotation of the page
-					if (i%2 == 0) {//true for odd pages, as Acrobat counts the first page as 0
-						// odd page action
-						// the page rotation can be only 4 values 0, 90 ,180 , 270
-						// the rotation is relative to the VERY original value, so  
-						// any change in rotation must be relative to the current rotation not absolute!!
-						if (rotation == 0) { 
-							rotation = 270; // hand fix as 0 - 90 = -90 not 270 that we need !
+					// the page rotation can be only 4 values 0, 90 ,180 , 270
+					// the rotation is relative to the VERY original value, so  
+					// any change in rotation must be relative to the current rotation not absolute!!
+					if (rotation == 0) { 
+						rotation = 180;
 						} else {
-							rotation = rotation - 90} // 90 CCW means -90deg
-					} else {
-						// even page action
-						if (rotation == 270) {
-							rotation = 0; // hand fix as 270 + 90 = 360 not 0 that we need !
-						} else {
-							rotation = rotation + 90} // 90 CW means +90deg
-						}
+						if (rotation == 90) { 
+							rotation = 270; 
+							} else {
+							if (rotation == 180) { 
+								rotation = 0; 
+								} else {
+								if (rotation == 270) { rotation = 90}
+								} } }
 					tmr.value = i; // update progress bar
-					tmr.text = 'Rotating page ' + (i+1) + ' of ' + (this.numPages); // update progress message
+					tmr.text = 'Rotating page ' + (i + 1) + ' of ' + (this.numPages); // update progress message
 					this.setPageRotations(i,i,rotation); // issue the page rotation
 					} // end of all pages loop
 				tmr.end(); // end the progress bar
