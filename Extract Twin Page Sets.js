@@ -53,29 +53,21 @@ ExtractPairs = app.trustedFunction(function() {
 		if (this.numPages > 0) { // check there is at least 1 page to work on
 			var nRslt = 1;
 			if (this.numPages%2 == 0) { // check for odd page count
-				nRslt = app.alert ("Your Document has an odd number of Pages\n\n" + "This routine is best suited to even page counts\n\n" + "The Last extract will only have 1 page\n\n" + "Are you Sure you want to continue?", 3, 1);
-				}
+				nRslt = app.alert ("Your Document has an odd number of Pages\n\n" + "This routine is best suited to even page counts\n\n" + "The Last extract will only have 1 page\n\n" + "Are you Sure you want to continue?", 3, 1)};
 			if (nRslt == 1) {		
 				var tmr = app.thermometer; // create a progress bar to inform the user of progress
 				tmr.duration = this.numPages;
 				tmr.begin();
-				var fn = this.path.replace(/\.pdf$/i, "") // remove the ".pdf" from the end of the file name
-				for (i=0; i<this.numPages; i+=2) { // Pad file name to cope with 19998 pages or 9999 output pages
-					if (i/2 + 1 < 10 ) {
-						j = "000" + (i/2 + 1) 
-						} else if (i/2 + 1 < 100) {
-						j = "00" + (i/2 + 1) 
-						} else if (i/2 + 1 < 1000) {
-						j = "0" + (i/2 + 1) 
+				var FileSeq = "";
+				var BaseFn = this.path.substring( 0, ((this.path.length)-4) ); // remove the ".pdf" from the end of the file name  
+				for (var CurPg=0; CurPg<this.numPages; CurPg+=2) { // Pad file name to cope with 19998 pages or 9999 output pages
+					FileSeq = ("000000000" + (CurPg +1)).slice(-("" + this.numPages).length);// Pad file name sequence number to cope with millions of pages :-)
+					tmr.value = CurPg; // update progress bar
+					tmr.text = 'Extracting pages ' + (CurPg+1) + ' and ' + (CurPg+2) + ' of ' + (this.numPages); // update progress message
+					if (CurPg+1 == this.numPages) { // check for uneven last page
+						this.extractPages({nStart: CurPg, nEnd: CurPg , cPath: BaseFn  + "_extract_" + FileSeq + ".pdf"}); // catch the single page
 						} else {
-						j = "" + (i/2 + 1) 
-						}
-					tmr.value = i; // update progress bar
-					tmr.text = 'Extracting pages ' + (i+1) + ' and ' + i+2 + ' of ' + (this.numPages); // update progress message
-					If (i+1 == this.numPages) { // check for uneven pages last page
-						this.extractPages({nStart: i, nEnd: i , cPath: fn  + "_extract_" + j + ".pdf"}); // catch the single page
-						} else {
-						this.extractPages({nStart: i, nEnd: i+1 , cPath: fn  + "_extract_" + j + ".pdf"}); // extract as twins
+						this.extractPages({nStart: CurPg, nEnd: CurPg+1 , cPath: BaseFn  + "_extract_" + FileSeq + ".pdf"}); // extract as twins
 						}
 					} // end of all pages loop
 				tmr.end(); // end the progress bar

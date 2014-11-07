@@ -5,7 +5,7 @@
 //   ************************************************************************************
 //   *****                                                                          *****
 //   *****    	EXTRACT EACH PAGE IN THE DOCUMENT TO A SINGLE PAGE PDF FILE         *****
-//   *****              Starts Numbering the Pages at 0001                          *****
+//   *****              Starts Numbering the Extract PDF files at 1                 *****
 //   *****                                                                          *****
 //   ************************************************************************************
 //   ************************************************************************************
@@ -43,37 +43,30 @@
 // Start of the Coding:
 //
 // Add a menu item to the Edit Menu
-app.addMenuItem({  cName: "Extract Each Page To Own PDF", cParent: "Edit", cExec: "ExtractSingles();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
+app.addMenuItem({  cName: "Extract Each Page To Own PDF", cParent: "Edit", cExec: "ExtractSingles1();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
 //
 // Define the Function
 //
-ExtractSingles = app.trustedFunction(function() {
+ExtractSingles1 = app.trustedFunction(function() {
 	try { // start error trapping
 		app.beginPriv(); // explicitly elevate security privileges
 		if (this.numPages > 0) { // check there is at least 1 page to work on
 			var tmr = app.thermometer; // create a progress bar to inform the user of progress
-			tmr.duration = this.numPages;
-			tmr.begin();
-			fn=this.path.replace(/\.pdf$/i, "") // remove the ".pdf" from the end of the file name
-			for (i=0; i<this.numPages; i++) { // Pad file name to cope with 9999 pages
-				if (i + 1 < 10 ) {
-					j = "000" + (i+1) 
-					} else if (i + 1 < 100) {
-					j = "00" + (i+1) 
-					} else if (i + 1 < 1000) {
-					j = "0" + (i+1) 
-					} else {
-					j = "" + (i+1) 
-					}
-				tmr.value = i; // update progress bar
-				tmr.text = 'Extracting page ' + (i+1) + ' of ' + (this.numPages); // update progress message
-				this.extractPages({nStart: i, nEnd: i , cPath: fn  + "_extract_" + j + ".pdf"});
+			tmr.duration = this.numPages; // set 100% of timer 
+			tmr.begin(); // start timer
+			var FileSeq = "";
+			var BaseFn = this.path.substring ( 0, ((this.path.length)-4) ); // remove the ".pdf" from the end of the file name  
+			for (var CurPg=0; CurPg < this.numPages; CurPg++) { 
+				FileSeq = ("000000000" + (CurPg +1)).slice(-("" + this.numPages).length);// Pad file name sequence number to cope with millions of pages :-)
+				tmr.value = CurPg; // update progress bar
+				tmr.text = 'Extracting page ' + (CurPg + 1) + ' of ' + (this.numPages); // update progress message
+				this.extractPages({nStart: CurPg, nEnd: CurPg , cPath: BaseFn + "_extract_" + FileSeq + ".pdf"});
 				} // end of all pages loop
 			tmr.end(); // end the progress bar
 		} // end of core processing section
 		app.endPriv();
 	} // end of try section now catch any error
-	catch(e) { app.alert("Processing error: "+e) }
+	catch(AppErr) { app.alert("Processing error: "+AppErr) }
 } // end of the code section
 ) // end of the "app.trustedFunction"
 //
