@@ -4,7 +4,8 @@
 //   ************************************************************************************
 //   ************************************************************************************
 //   *****                                                                          *****
-//   *****    	          ROTATE ALL PAGES 90 DEGREES CLOCKWISE                     *****
+//   *****    	EXTRACT ALL PAGES AS PAIRS IN THE DOCUMENT TO PDF FILES             *****
+//   *****              Starts Numbering the Pages at 0001                          *****
 //   *****                                                                          *****
 //   ************************************************************************************
 //   ************************************************************************************
@@ -42,39 +43,35 @@
 // Start of the Coding:
 //
 // Add a menu item to the Edit Menu
-app.addMenuItem({  cName: "Rotate All Pages 90 CW", cParent: "Edit", cExec: "RotPages90CW();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
+app.addMenuItem({  cName: "Extract Pairs of Pages To Own PDF", cParent: "Edit", cExec: "ExtractPairs();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
 //
 // Define the Function
 //
-RotPages90CW = app.trustedFunction(function() {
+ExtractPairs = app.trustedFunction(function() {
 	try { // start error trapping
 		app.beginPriv(); // explicitly elevate security privileges
 		if (this.numPages > 0) { // check there is at least 1 page to work on
-			var rotation = 0;
-			var tmr = app.thermometer; // create a progress bar to inform the user of progress
-			tmr.duration = this.numPages;
-			tmr.begin();
-			for (var i=0; i< this.numPages; i++) { // loop through All pages, one at a time
-				rotation = this.getPageRotation(i); // we need to know the current rotation of the page
-				// the page rotation can be only 4 values 0, 90 ,180 , 270
-				// the rotation is relative to the VERY original value, so  
-				// any change in rotation must be relative to the current rotation not absolute!!
-				if (rotation == 0) { 
-					rotation = 90;
-					} else {
-					if (rotation == 90) { 
-						rotation = 180; 
+			var nRslt = 1;
+			if (this.numPages%2 == 0) { // check for odd page count
+				nRslt = app.alert ("Your Document has an odd number of Pages\n\n" + "This routine is best suited to even page counts\n\n" + "The Last extract will only have 1 page\n\n" + "Are you Sure you want to continue?", 3, 1)};
+			if (nRslt == 1) {		
+				var tmr = app.thermometer; // create a progress bar to inform the user of progress
+				tmr.duration = this.numPages;
+				tmr.begin();
+				var FileSeq = "";
+				var BaseFn = this.path.substring( 0, ((this.path.length)-4) ); // remove the ".pdf" from the end of the file name  
+				for (var CurPg=0; CurPg<this.numPages; CurPg+=2) { // Pad file name to cope with 19998 pages or 9999 output pages
+					FileSeq = ("000000000" + (CurPg +1)).slice(-("" + this.numPages).length);// Pad file name sequence number to cope with millions of pages :-)
+					tmr.value = CurPg; // update progress bar
+					tmr.text = 'Extracting pages ' + (CurPg+1) + ' and ' + (CurPg+2) + ' of ' + (this.numPages); // update progress message
+					if (CurPg+1 == this.numPages) { // check for uneven last page
+						this.extractPages({nStart: CurPg, nEnd: CurPg , cPath: BaseFn  + "_extract_" + FileSeq + ".pdf"}); // catch the single page
 						} else {
-						if (rotation == 180) { 
-							rotation = 270; 
-							} else {
-							if (rotation == 270) { rotation = 0}
-							} } }
-				tmr.value = i; // update progress bar
-				tmr.text = 'Rotating page ' + (i + 1) + ' of ' + (this.numPages); // update progress message
-				this.setPageRotations(i,i,rotation); // issue the page rotation
-				} // end of all pages loop
-			tmr.end(); // end the progress bar
+						this.extractPages({nStart: CurPg, nEnd: CurPg+1 , cPath: BaseFn  + "_extract_" + FileSeq + ".pdf"}); // extract as twins
+						}
+					} // end of all pages loop
+				tmr.end(); // end the progress bar
+			} // End of odd page check
 		} // end of core processing section
 		app.endPriv();
 	} // end of try section now catch any error
