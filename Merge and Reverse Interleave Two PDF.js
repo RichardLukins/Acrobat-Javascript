@@ -4,7 +4,8 @@
 //   ************************************************************************************
 //   ************************************************************************************
 //   *****                                                                          *****
-//   *****   MERGE TWO PDF FILES COLLATING THE PAGES INTERLEAVED FRONT TO BACK      *****
+//   *****           MERGE TWO PDF FILES COLLATING THE PAGES INTERLEAVED            *****
+//   *****             THE SECOND FILE IS INTERLEAVED IN REVERSE ORDER              *****
 //   *****                                                                          *****
 //   ************************************************************************************
 //   ************************************************************************************
@@ -45,11 +46,11 @@
 // Start of the Coding:
 //
 // Add a menu item to the Edit Menu
-app.addMenuItem({  cName: "Merge and Interleave Two PDFs", cParent: "Edit", cExec: "MergeInterleave();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
+app.addMenuItem({  cName: "Merge and Reverse Interleave Two PDFs", cParent: "Edit", cExec: "MergeReverseInterleave();",  cEnable: "event.rc = (event.target != null);", nPos: 0 });
 //
 // Define the Function
 //
-MergeInterleave = app.trustedFunction(function() {
+MergeReverseInterleave = app.trustedFunction(function() {
 	try { // start error trapping
 		app.beginPriv(); // explicitly elevate security privileges
 		if (this.numPages > 0) { // check there is at least 1 page to work on
@@ -71,10 +72,10 @@ MergeInterleave = app.trustedFunction(function() {
 				var tmr = app.thermometer; // create a progress bar to inform the user of progress
 				tmr.duration = OrigPageCount;
 				tmr.begin();
-				for (var CurPg = 0; CurPg < OrigPageCount; CurPg ++) { // Pad file name to cope with 19998 pages or 9999 output pages
+				for (var CurPg = 0; CurPg < OrigPageCount; CurPg ++) { // 
 					tmr.value = CurPg; // update progress bar
 					tmr.text = 'Inserting page ' + (CurPg + 1) + ' of ' + OrigPageCount; // update progress message
-					this.insertPages((CurPg*2), filePath, CurPg)  // insert pages from selected document into open document
+					this.insertPages(OrigPageCount - CurPg - 1, filePath, CurPg);
 					} // end of all pages loop
 				tmr.end(); // end the progress bar
 			} // End of odd page check
