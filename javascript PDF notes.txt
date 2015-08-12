@@ -1,0 +1,48 @@
+
+exportAsText
+Exports form fields as a tab-delimited text file to a local hard disk. The text file that is created follows the conventions specified by Microsoft Excel. In particular, exportAsText correctly handles quotes and multiline text fields.
+This method writes two lines to the text file, the first line is a tab-delimited list of the names of the fields specified by aFields, the second line is a tab-delimited list of the values of the fields.
+Note:If the cPath parameter is specified, this method can only be executed during a batch or console event. See also “Privileged versus non-privileged context” on page 32. The event object includes a discussion of JavaScript events.
+Parameters
+6.0
+S
+F
+bNoPassword
+(optional) If true (the default), do not include text fields that have the password flag set in the exported text file.
+aFields
+(optional) The array of field names to submit or a string containing a single field name:
+●If specified, only these fields are exported, except those excluded by bNoPassword.
+●If aFields is an empty array, no fields are exported.
+●If this parameter is omitted or is null, all fields in the form are exported, except those excluded by bNoPassword.
+cPath
+(optional) A string specifying the device-independent path for the file. The path may be relative to the location of the current document. If the parameter is omitted, a dialog box is shown to let the user select the file.
+Note:The parameter cPath is must have a safe path (see “Safe path” on page 31) and have a .txt extension. This method will throw a NotAllowedError (see Error object) exception if these security conditions are not met, and the method will fail.
+Example
+To export all fields to a tab-delimited file, execute the following script in the console:
+this.exportAsText();
+To create a tab-delimited file with more than just one data line, see the “Example” on page 300.
+
+
+
+getPageBox
+Gets a rectangle in rotated user space that encompasses the named box for the page. See also setPageBoxes.
+Parameters
+cBox
+(optional) The type of box. Values are:
+Art
+Bleed
+BBox
+Crop (default)
+Trim
+For definitions of these boxes see the PDF Reference version 1.7.
+nPage
+(optional) The 0-based index of the page. The default is 0, the first page in the document.
+
+Returns
+A rectangle in rotated user space that encompasses the named box for the page.
+Example
+Get the dimensions of the Media box.
+var aRect = this.getPageBox("Media");
+var width = aRect[2] - aRect[0];
+var height = aRect[1] - aRect[3];
+console.println("Page 1 has a width of " + width + " and a height of " + height);
